@@ -26,4 +26,26 @@ class AuthorController extends Controller
         $author = \App\Models\Author::find($id);
         return new \App\Http\Resources\AuthorResource($author);
     }
+
+    public function edit($id)
+    {
+        $author = \App\Models\Author::find($id);
+        return view('edit-author', [
+            'author' => $author
+        ]);
+    }
+
+    public function update(AuthorRequest $request)
+    {
+        $author = \App\Models\Author::find($request->id);
+        $author->update($request->all());
+        return redirect('/authors')->with('success', 'Data author berhasil diubah');
+    }
+
+    public function delete(Request $request)
+    {
+        $author = \App\Models\Author::find($request->id);
+        $author->delete();
+        return redirect('/authors')->with('success', 'Data author berhasil dihapus');
+    }
 }

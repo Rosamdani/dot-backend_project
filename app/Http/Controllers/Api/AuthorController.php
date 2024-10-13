@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AuthorCollection;
 use App\Http\Resources\AuthorResource;
+use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
@@ -13,56 +16,102 @@ class AuthorController extends Controller
      */
     public function index()
     {
-        $authors = \App\Models\Author::all();
-        return new AuthorResource($authors);
+        $authors = Author::all();
+        return new AuthorCollection($authors);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Menampilkan detail penulis berdasarkan ID.
      */
-    public function create()
+    public function show($id)
     {
-        //
-    }
+        $author = Author::find($id);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if (!$author) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Penulis tidak ditemukan',
+            ], 404);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $author = \App\Models\Author::find($id);
         return new AuthorResource($author);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Menambahkan penulis baru ke dalam sistem.
      */
-    public function edit(string $id)
+    public function store(Request $request)
     {
-        //
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        // Buat penulis baru
+        $author = Author::create($validator->validated());
+
+        return (new AuthorResource($author))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Memperbarui informasi penulis berdasarkan ID.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $author = Author::find($id);
+
+        if (!$author) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Penulis tidak ditemukan',
+            ], 404);
+        }
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        // Update penulis
+        $author->update($validator->validated());
+
+        return new AuthorResource($author);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus penulis berdasarkan ID.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $author = Author::find($id);
+
+        if (!$author) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Penulis tidak ditemukan',
+            ], 404);
+        }
+
+        $author->delete();
+
+        return response()->json(null, 204);
     }
 }

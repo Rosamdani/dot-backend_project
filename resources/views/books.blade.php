@@ -33,26 +33,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-<div class="row mt-2">
-    @if (session()->has('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
-
-    @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <h5>Terjadi kesalahan</h5>
-        <ul>
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
-</div>
+<x-alert />
 
 {{-- Card --}}
 <div class="row mt-5">
@@ -80,8 +61,8 @@
                         <td class="text-truncate">{{ $book->deskripsi }}</td>
                         <td>{{ $book->author->name }}</td>
                         <td>
-                            <a href="/books/{{ $book->id }}/edit" class="btn btn-warning">Edit</a>
-                            <form action="/books/{{ $book->id }}" method="POST" class="d-inline">
+                            <a href="/books/edit/{{ $book->id }}" class="btn btn-warning">Edit</a>
+                            <form action="/books/delete/{{ $book->id }}" method="POST" class="d-inline">
                                 @method('delete')
                                 @csrf
                                 <button type="submit" class="btn btn-danger">Hapus</button>

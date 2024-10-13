@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AuthorRequest extends FormRequest
 {
@@ -23,7 +24,12 @@ class AuthorRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'no_telp' => 'required|max_digits:12|regex:/^0[0-9]{9,12}$/',
+            'no_telp' => [
+                'required',
+                'max_digits:12',
+                'regex:/^0[0-9]{9,12}$/',
+                Rule::unique('authors', 'no_telp')->ignore($this->route('author')),
+            ],
             'email' => 'required|email',
         ];
     }
@@ -35,6 +41,7 @@ class AuthorRequest extends FormRequest
             'no_telp.required' => 'No Telp harus diisi',
             'no_telp.max_digits' => 'No Telp harus 12 digit',
             'no_telp.regex' => 'No Telp harus angka',
+            'no_telp.unique' => 'No Telp sudah terdaftar',
             'email.required' => 'Email harus diisi',
             'email.email' => 'Email harus valid',
         ];

@@ -20,11 +20,11 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::routeIs('books.index') ? 'active' : '' }}" aria-current="page"
+                        <a class="nav-link {{ request()->routeIs('books.index') ? 'fw-bold' : '' }}" aria-current="page"
                             href="/">Buku</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::routeIs('author.index') ? 'active' : '' }}"
+                        <a class="nav-link {{ request()->routeIs('authors.index') ? 'fw-bold' : '' }}"
                             href="/authors">Author</a>
                     </li>
                 </ul>
