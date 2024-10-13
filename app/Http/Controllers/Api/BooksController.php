@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BooksRequest;
 use App\Http\Resources\BookCollection;
 use App\Http\Resources\BookResource;
 use App\Models\Books;
@@ -41,9 +40,14 @@ class BooksController extends Controller
     /**
      * Menambahkan buku baru ke dalam sistem.
      */
-    public function store(BooksRequest $request)
+    public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), $request->rules(), $request->messages());
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'title'     => 'required|string|max:255',
+            'deskripsi' => 'required',
+            'author_id' => 'required|exists:authors,id',
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -54,7 +58,7 @@ class BooksController extends Controller
         }
 
         // Buat buku baru
-        $book = Books::create($request->all());
+        $book = Books::create($validator->validated());
 
         return (new BookResource($book))
             ->response()
@@ -64,7 +68,7 @@ class BooksController extends Controller
     /**
      * Memperbarui informasi buku berdasarkan ID.
      */
-    public function update(BooksRequest $request, $id)
+    public function update(Request $request, $id)
     {
         $book = Books::find($id);
 
@@ -76,7 +80,12 @@ class BooksController extends Controller
         }
 
         // Validasi input
-        $validator = Validator::make($request->all(), $request->rules(), $request->messages());
+        $validator = Validator::make($request->all(), [
+            'title'     => 'sometimes|required|string|max:255',
+            'deskripsi' => 'sometimes|required',
+            'author_id' => 'sometimes|required|exists:authors,id',
+        ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'status'  => 'error',
@@ -107,7 +116,7 @@ class BooksController extends Controller
 
         $book->delete();
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Buku berhasil dihapus'], 204);
     }
 
     /**

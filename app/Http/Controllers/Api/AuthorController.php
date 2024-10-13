@@ -20,9 +20,6 @@ class AuthorController extends Controller
         return new AuthorCollection($authors);
     }
 
-    /**
-     * Menampilkan detail penulis berdasarkan ID.
-     */
     public function show($id)
     {
         $author = Author::find($id);
@@ -37,14 +34,13 @@ class AuthorController extends Controller
         return new AuthorResource($author);
     }
 
-    /**
-     * Menambahkan penulis baru ke dalam sistem.
-     */
+
     public function store(Request $request)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'no_telp' => 'required|max_digits:12|regex:/^0[0-9]{9,12}$/',
         ]);
 
         if ($validator->fails()) {
@@ -55,7 +51,6 @@ class AuthorController extends Controller
             ], 422);
         }
 
-        // Buat penulis baru
         $author = Author::create($validator->validated());
 
         return (new AuthorResource($author))
@@ -63,9 +58,6 @@ class AuthorController extends Controller
             ->setStatusCode(201);
     }
 
-    /**
-     * Memperbarui informasi penulis berdasarkan ID.
-     */
     public function update(Request $request, $id)
     {
         $author = Author::find($id);
@@ -77,9 +69,10 @@ class AuthorController extends Controller
             ], 404);
         }
 
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email',
+            'no_telp' => 'sometimes|required|max_digits:12|regex:/^0[0-9]{9,12}$/',
         ]);
 
         if ($validator->fails()) {
@@ -90,15 +83,10 @@ class AuthorController extends Controller
             ], 422);
         }
 
-        // Update penulis
         $author->update($validator->validated());
 
         return new AuthorResource($author);
     }
-
-    /**
-     * Menghapus penulis berdasarkan ID.
-     */
     public function destroy($id)
     {
         $author = Author::find($id);
